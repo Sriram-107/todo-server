@@ -1,0 +1,71 @@
+Whatever is inside the gitignore file is not added to the git. 
+We don't need node_modules folder so we mentioned it in gitignore
+
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv'
+import cors from 'cors'
+
+const app = express(); // Creates the express application.
+dotenv.config(); // Loads the .env file data.
+
+app.use(cors); // for local server we can allow all the request from the client side.
+
+const PORT = process.env.PORT || 7000;
+const MONGO_URL = process.env.CONNECTION_URL;
+
+mongoose.connect(MONGO_URL).then(() => {
+    console.log('Database connected sucessfully');
+    app.listen(PORT, () => {
+        console.log(`Server is running on ${PORT}`);
+    })
+}).catch((err) => {
+    console.log(err);
+})
+
+// Schema is your actual document with key value pair.
+const todoSchema = new mongoose.Schema({
+    todo: String,
+    description: String
+});
+
+// Model refers to the collection and mention the schema in your model.
+const TodoModel = mongoose.model("todolists", todoSchema);
+
+app.get("/", async (req, res) => {
+
+    try {
+        const todoList = await TodoModel.find();
+        console.log(todoList)
+        res.json(todoList);
+    } catch (err) {
+        console.log(err);
+    }
+})
+
+// app.post("/postTodoList", async (req, res) => {
+//     const newTodoList = new TodoModel(req.body);
+//     newTodoList.save().
+//         then((todo) => res.status(201).json(todo)).
+//         catch((err) => {
+//             console.log(err);
+//             res.status(500).json({ error: err })
+//         })
+// })
+
+// app.delete("/todoList/:id", async (req, res) => {
+//     try {
+//         const deletedTodo = TodoModel.findByIdAndDelete(req.query.id);
+//         if (!deletedTodo) {
+//             return res.status(404).json({ message: "Todo not found" });
+//         }
+//         return res.json({ message: "Todo deleted sucessfully" })
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Error deleting Todo' });
+
+//     }
+
+// })
+
+
